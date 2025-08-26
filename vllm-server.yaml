@@ -31,7 +31,9 @@ spec:
           args:
             - '--model'
             - '/mnt/models'
-            - '--served-model-name=Qwen/Qwen3-0.6B'
+            - '--served-model-name=taide/Llama-3.1-TAIDE-LX-8B-Chat'
+            - '--max-model-len'
+            - '16000'            
             - '--port'
             - '8080'
           resources:

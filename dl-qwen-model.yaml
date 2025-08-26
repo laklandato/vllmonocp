@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: download-qwen-model
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: hf-downloader
+        image: registry.access.redhat.com/ubi9/python-312:latest
+        command:
+          - /bin/bash
+          - -c
+          - |
+            pip install --no-cache-dir huggingface_hub
+            mkdir -p /mnt/models/Qwen/Qwen3-0.6B
+            hf download \
+              Qwen/Qwen3-0.6B \
+              --local-dir /mnt/models/               
+        volumeMounts:
+          - name: model-storage
+            mountPath: /mnt/models
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: vllm-model-pvc

@@ -17,7 +17,8 @@ spec:
             mkdir -p /mnt/models/taide/Gemma-3-TAIDE-12b-Chat
             hf download \
               taide/Gemma-3-TAIDE-12b-Chat \
-              --local-dir /mnt/models/               
+              --local-dir /mnt/models/ \
+              --token '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'
         volumeMounts:
           - name: model-storage
             mountPath: /mnt/models

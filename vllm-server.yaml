@@ -1,0 +1,79 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: vllm-server
+  namespace: rhaiis-vllm  
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: vllm
+  template:
+    metadata:
+      labels:
+        app: vllm
+    spec:
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: vllm-model-pvc
+      containers:
+        - name: vllm
+          image: 'registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.0-1754088865-hotfix-1'
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+              name: http
+          volumeMounts:
+            - name: model-storage
+              mountPath: /mnt/models
+          args:
+            - '--model'
+            - '/mnt/models'
+            - '--served-model-name=Qwen/Qwen3-0.6B'
+            - '--port'
+            - '8080'
+          resources:
+            requests:
+              cpu: "2"
+              memory: "8Gi"
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "4"
+              memory: "24Gi"
+              nvidia.com/gpu: "1"
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+  strategy:
+    type: Recreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-service
+  namespace: rhaiis-vllm
+spec:
+  selector:
+    app: vllm
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+  type: ClusterIP
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: vllm-route
+  namespace: rhaiis-vllm
+spec:
+  to:
+    kind: Service
+    name: vllm-service    
+  port:
+    targetPort: http
+  tls:
+    termination: edge

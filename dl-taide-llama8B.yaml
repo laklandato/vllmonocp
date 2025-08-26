@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: download-taide-gemma-model
+  name: download-taide-llama8b-model
 spec:
   template:
     spec:
@@ -16,9 +16,9 @@ spec:
             pip install --no-cache-dir huggingface_hub
             mkdir -p /mnt/models/taide/Gemma-3-TAIDE-12b-Chat
             hf download \
-              taide/Gemma-3-TAIDE-12b-Chat \
+              taide/Llama-3.1-TAIDE-LX-8B-Chat \
               --local-dir /mnt/models/ \
-              --token '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'
+              --token 'hf_xxxxxx'
         volumeMounts:
           - name: model-storage
             mountPath: /mnt/models
